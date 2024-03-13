@@ -1,6 +1,6 @@
 {
   "CalcSettings": {
     "Delimiter": [ "," ],
-    "MaxDigits": 2
+    "MaxDigits": 0
   }
 }
