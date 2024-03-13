@@ -22,7 +22,6 @@ namespace calc_challenge_tests.Calculator
 
             Mock<IRequirementsService> mockRequirementsService = new Mock<IRequirementsService>();
             mockRequirementsService.Setup(ds => ds.RequirementsCheck("1,3"));
-
             var calculator = new MainCalculator(mockRequirementsService.Object);
 
             var calculatedSum = calculator.Sum(userInput);

@@ -15,15 +15,44 @@ namespace calc_challenge_tests.Services
     {
         [Test]
         // Test that the number of values supplied does not exceed the enforced limit.
-        public void CheckLength_Test()
+        public void CheckLength_UnderLimit()
         {
             var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 2 };
             Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
-            mockConfigurationService.Setup(ds => ds.GetAllSettings()).Returns(mockConfigData);
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
             var requirementsService = new RequirementsService(mockConfigurationService.Object);
-            var digits = mockConfigurationService.Object.GetMaxDigits();
-            Assert.That(requirementsService.CheckLength(2, mockConfigData), Is.True);
+            Assert.That(requirementsService.CheckTotalDigits(2, mockConfigData), Is.True);
         }
+
+        [Test]
+        // Test that the number of values supplied does not exceed the enforced limit.
+        public void CheckLength_NoLimit()
+        {
+            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0 };
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            Assert.That(requirementsService.CheckTotalDigits(2, mockConfigData), Is.True);
+        }
+
+        [Test]
+        // Test that the number of values supplied does not exceed the enforced limit.
+        public void ParseValues_ValidResult()
+        {
+            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0 };
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var result = requirementsService.ParseValues("3,5,6\\5", mockConfigData);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Length, Is.EqualTo(4));
+            });
+        }
+
     }
 }

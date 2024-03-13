@@ -18,12 +18,13 @@ namespace calc_challenge.Services
         }
 
         // Get all settings from configuration file
-        public Settings GetAllSettings()
+        public Settings GetCalculatorSettings()
         {
-            var settings = new Settings();
-            settings.Delimiters = GetDelimiters();
-            settings.MaxDigits = GetMaxDigits();
-            return settings;
+            return new Settings
+            {
+                Delimiters = GetDelimiters(),
+                MaxDigits = GetMaxDigits()
+            };
         }
 
         // Get delimiters from settings file
@@ -58,6 +59,6 @@ namespace calc_challenge.Services
     {
         List<string> GetDelimiters();
         int GetMaxDigits();
-        Settings GetAllSettings();
+        Settings GetCalculatorSettings();
     }
 }

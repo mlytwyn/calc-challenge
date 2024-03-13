@@ -17,12 +17,12 @@ namespace calc_challenge_tests.Services
         // Test that the number of values supplied does not exceed the enforced limit.
         public void GetAllSettings_Test()
         {
-            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 2 };
+            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0 };
             Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
-            mockConfigurationService.Setup(ds => ds.GetAllSettings()).Returns(mockConfigData);
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
             var configurationService = new CalculatorConfigurationService();
-            var calcSettings = configurationService.GetAllSettings();
+            var calcSettings = configurationService.GetCalculatorSettings();
 
             Assert.Multiple(() =>
             {
