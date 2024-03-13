@@ -15,16 +15,25 @@ namespace calc_challenge.Calculator
         private readonly IRequirementsService _requirementsService = requirementsService;
 
         // Core loop of the calculator function, take input and route appropriately
-        public void Input()
+        public void CalculatorMain()
         {
             while (true)
             {
                 Console.WriteLine();
-                Console.WriteLine("Enter two numbers separated by a comma to find the sum.");
+                Console.WriteLine("Enter a series of numbers to find the sum.");
+                Console.WriteLine($"The numbers may be delimited by a comma or newline character.");
                 string? userInput = Console.ReadLine();
 
                 if (userInput != null)
-                    Console.WriteLine("Total: " + Sum(_requirementsService.RequirementsCheck(userInput)));
+                    try
+                    {
+                        Console.WriteLine("Total: " + Sum(_requirementsService.RequirementsCheck(userInput)));
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine($"{ex.Message}");
+                    }
+                    
                 else Console.WriteLine("Invalid Value Entered");
             }
         }
@@ -43,7 +52,7 @@ namespace calc_challenge.Calculator
 
     public interface ICalculator
     {
-        void Input();
+        void CalculatorMain();
         int Sum(List<int> numbers);
     }
 }

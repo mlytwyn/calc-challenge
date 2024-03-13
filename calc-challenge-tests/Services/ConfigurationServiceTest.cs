@@ -17,7 +17,7 @@ namespace calc_challenge_tests.Services
         // Test that the number of values supplied does not exceed the enforced limit.
         public void GetAllSettings_Test()
         {
-            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0 };
+            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0, AllowNegativeDigits = false };
             Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
@@ -28,6 +28,7 @@ namespace calc_challenge_tests.Services
             {
                 Assert.That(calcSettings?.Delimiters?.First(), Is.EqualTo(mockConfigData.Delimiters.First()));
                 Assert.That(calcSettings?.MaxDigits, Is.EqualTo(mockConfigData.MaxDigits));
+                Assert.That(calcSettings?.AllowNegativeDigits, Is.EqualTo(mockConfigData.AllowNegativeDigits));
             });
         }
     }

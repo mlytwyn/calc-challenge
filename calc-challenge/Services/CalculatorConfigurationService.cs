@@ -23,7 +23,8 @@ namespace calc_challenge.Services
             return new Settings
             {
                 Delimiters = GetDelimiters(),
-                MaxDigits = GetMaxDigits()
+                MaxDigits = GetMaxDigits(),
+                AllowNegativeDigits = GetAllowNegativeNumbers()
             };
         }
 
@@ -52,6 +53,16 @@ namespace calc_challenge.Services
                 maxDigits = _configuration.GetSection("CalcSettings:MaxDigits").Get<int>();
 
             return maxDigits; ;
+        }
+
+        public bool GetAllowNegativeNumbers()
+        {
+            var negativeNumbersAllowed = false;
+
+            if (_configuration != null)
+                negativeNumbersAllowed = _configuration.GetSection("CalcSettings:AllowNegativeNumbers").Get<bool>();
+
+            return negativeNumbersAllowed; ;
         }
     }
 

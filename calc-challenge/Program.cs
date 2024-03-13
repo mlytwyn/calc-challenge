@@ -14,4 +14,4 @@ var serviceProvider = new ServiceCollection()
 var requirementsService = serviceProvider.GetRequiredService<IRequirementsService>();
 var calculator = new MainCalculator(requirementsService);
 
-calculator.Input();
+calculator.CalculatorMain();

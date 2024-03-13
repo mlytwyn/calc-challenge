@@ -27,6 +27,18 @@ namespace calc_challenge_tests.Services
 
         [Test]
         // Test that the number of values supplied does not exceed the enforced limit.
+        public void CheckLength_OverLimit()
+        {
+            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 2 };
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            Assert.Throws<Exception>(() => requirementsService.CheckTotalDigits(4, mockConfigData));
+        }
+
+        [Test]
+        // Test that the number of values supplied does not exceed the enforced limit.
         public void CheckLength_NoLimit()
         {
             var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0 };
@@ -52,6 +64,21 @@ namespace calc_challenge_tests.Services
             {
                 Assert.That(result.Length, Is.EqualTo(4));
             });
+        }
+
+        [Test]
+        // Test that the number of values supplied does not exceed the enforced limit.
+        public void ForceNumericValues_Exception()
+        {
+            List<int> numberList = [1, 3, -5, 6, -8];
+            string[] numberArray = ["1", "3", "-5", "6", "-8"];
+
+            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0, AllowNegativeDigits = false };
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            Assert.Throws<Exception>(() => requirementsService.ForceNumericValues(numberList, numberArray, mockConfigData));
         }
 
     }
