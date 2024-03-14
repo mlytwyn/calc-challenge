@@ -54,6 +54,7 @@ namespace calc_challenge_tests.Services
         public void ParseValues_ValidResult()
         {
             var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0 };
+
             Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
@@ -144,5 +145,20 @@ namespace calc_challenge_tests.Services
             });
         }
 
+        [Test]
+        // Test that if entering a new 1 char delimiter, it is stored correctly.
+        public void StoreOptionalDelimiter_Valid()
+        {
+            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0 };
+            char delimiter = '#';
+
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var result = requirementsService.StoreOptionalDelimiter("//#", mockConfigData);
+
+            Assert.That(delimiter, Is.EqualTo(result));
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using calc_challenge.Models;
 using System;
+using System.Text.RegularExpressions;
 
 namespace calc_challenge.Services
 {
@@ -15,17 +16,18 @@ namespace calc_challenge.Services
         {
             List<int> parsedInputNumbersList = [];
             string[] parsedInputNumbersArray = [];
-            Settings settings = _calcConfiguration.GetCalculatorSettings();
+            Settings _settings = _calcConfiguration.GetCalculatorSettings();
 
-            parsedInputNumbersArray = ParseValues(input, settings);
-            CheckTotalDigits(parsedInputNumbersArray.Length, settings);
-            parsedInputNumbersList = ForceNumericValues(parsedInputNumbersArray, settings);
+            StoreOptionalDelimiter(input, _settings);
+            parsedInputNumbersArray = ParseValues(input, _settings);
+            CheckTotalDigits(parsedInputNumbersArray.Length, _settings);
+            parsedInputNumbersList = ForceNumericValues(parsedInputNumbersArray, _settings);
            
             return parsedInputNumbersList;
         }
 
         // Check the number of digits entered against the maximum number allowed, if configured in config.json
-        public bool CheckTotalDigits(int length, Settings? settings)
+        public bool CheckTotalDigits(int length, Settings settings)
         {
             if (length > settings?.MaxDigits && settings.MaxDigits != 0)
                 throw new Exception($"\nYou have entered more than {settings.MaxDigits} digits");
@@ -66,13 +68,30 @@ namespace calc_challenge.Services
 
         // Create an array of all numbers after splitting from known delimiters. Remove empty strings after completion.
         // Return as a List of integers
-        public string[] ParseValues(string input, Settings? settings)
+        public string[] ParseValues(string input, Settings settings)
         {
             var delimiters = settings?.Delimiters?.Select(del => del);
             string[] inputNumbers = input.Split(delimiters?.SelectMany(del => del).ToArray());
             return inputNumbers.Where(num => num.Length > 0).ToArray();
         }
 
+        // If an optional delimiter is specificed in the input, make note of it here.
+        public char StoreOptionalDelimiter(string input, Settings settings)
+        {
+            // Regex to get 1 character after two forward slashes
+            string pattern = @"//(.)";
+            char capturedChar = '\0';
+
+            Match match = Regex.Match(input, pattern);
+            if (match.Success)
+            {
+                // Extract the new delmiter and store it in our settings
+                capturedChar = match.Groups[1].Value[0];
+                settings.Delimiters?.Add(capturedChar.ToString());
+            }
+
+            return capturedChar;
+        }
     }
 
     public interface IRequirementsService

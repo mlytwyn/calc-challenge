@@ -33,7 +33,7 @@ namespace calc_challenge.Services
         // Get delimiters from settings file
         public List<string> GetDelimiters()
         {
-            List<string> delimiters = new List<string>();
+            List<string> delimiters = [];
 
             if (_configuration != null)
             {
