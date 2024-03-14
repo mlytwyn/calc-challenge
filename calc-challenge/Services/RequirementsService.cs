@@ -1,28 +1,29 @@
-﻿using calc_challenge.Models;
-using System;
-using System.Text.RegularExpressions;
+﻿using calc_challenge.Helpers;
+using calc_challenge.Models;
+using System.Collections.Generic;
 
 namespace calc_challenge.Services
 {
-    public class RequirementsService(ICalculatorConfigurationService calcConfiguration) : IRequirementsService
+    public class RequirementsService(ICalculatorConfigurationService calcConfiguration, IStringParser stringParser) : IRequirementsService
     {
         readonly ICalculatorConfigurationService _calcConfiguration = calcConfiguration;
+        readonly IStringParser _stringParser = stringParser;
 
-        // The service uses config data stored in config.json to perform the following
+        // The service uses config data stored in config.json and user input to perform the following
         // 1) Determine the delimiters used and parse the numbers into an array.
         // 2) Enforce the maximum amount of digits allowed if configured.
-        // 3 Return values to be calculated once requirements are met
+        // 3) Return values to be calculated once requirements are met
         public List<int> RequirementsCheck(string input)
         {
             List<int> parsedInputNumbersList = [];
             string[] parsedInputNumbersArray = [];
             Settings _settings = _calcConfiguration.GetCalculatorSettings();
 
-            StoreOptionalDelimiter(input, _settings);
+            _settings.Delimiters.AddRange(StoreOptionalDelimiter(input));
             parsedInputNumbersArray = ParseValues(input, _settings);
             CheckTotalDigits(parsedInputNumbersArray.Length, _settings);
             parsedInputNumbersList = ForceNumericValues(parsedInputNumbersArray, _settings);
-           
+
             return parsedInputNumbersList;
         }
 
@@ -40,22 +41,15 @@ namespace calc_challenge.Services
         public List<int> ForceNumericValues(string[] inputNumbers, Settings settings)
         {
             List<int> parsedInputNumbers = [];
-            foreach (string stringNumber in inputNumbers)
-            {
-                if (int.TryParse(stringNumber, out int number))
-                {
-                    if (number < settings.MaxNumberSize)
-                        parsedInputNumbers.Add(number);
-                }
-                else
-                {
-                    parsedInputNumbers.Add(0);
-                }
-            }
+            parsedInputNumbers = _stringParser.ParseStringForNumbers(inputNumbers);
+
+            // Remove any numbers that are larger than the configurable maximum size in config.json
+            parsedInputNumbers.RemoveAll(num => num > settings.MaxNumberSize);
 
             if (!settings.AllowNegativeDigits)
             {
                 var negativeNumbers = parsedInputNumbers.Where(num => num < 0);
+
                 if (negativeNumbers.Any())
                 {
                     throw new Exception($"\nYou have entered the following negative numbers which are not allowed " +
@@ -72,25 +66,31 @@ namespace calc_challenge.Services
         {
             var delimiters = settings?.Delimiters?.Select(del => del);
             string[] inputNumbers = input.Split(delimiters?.SelectMany(del => del).ToArray());
+
             return inputNumbers.Where(num => num.Length > 0).ToArray();
         }
 
         // If an optional delimiter is specificed in the input, make note of it here.
-        public char StoreOptionalDelimiter(string input, Settings settings)
+        // Optionally these regex values could be moved to config.json to make them more tweakable without rebuilding
+        public List<string> StoreOptionalDelimiter(string input)
         {
+            var newDelimiters = new List<string>();
+
             // Regex to get 1 character after two forward slashes
-            string pattern = @"//(.)";
-            char capturedChar = '\0';
+            // Ex: //. , //* , //#
+            string singleCharacterPattern = @"//(.)";
 
-            Match match = Regex.Match(input, pattern);
-            if (match.Success)
-            {
-                // Extract the new delmiter and store it in our settings
-                capturedChar = match.Groups[1].Value[0];
-                settings.Delimiters?.Add(capturedChar.ToString());
-            }
+            //// Regex to get characters after two forward slashes and between two brackets
+            //// Ex: //[*], //[*#*][#*#], //[******######][z8x]
+            string multipleCharacterPattern = @"\[(.*?)\]";
 
-            return capturedChar;
+            if (input.Contains('[') && input.Contains(']') && input.StartsWith("/"))
+                newDelimiters.AddRange(_stringParser.RegexMatchMultipleString(input, multipleCharacterPattern));
+
+            if (input.Contains("//") && input.StartsWith('/'))
+                newDelimiters.Add(_stringParser.RegexMatchSingleChar(input, singleCharacterPattern));
+
+            return newDelimiters;
         }
     }
 

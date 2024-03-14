@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using calc_challenge.Helpers;
 using calc_challenge.Models;
 using calc_challenge.Services;
 using Moq;
@@ -13,15 +14,26 @@ namespace calc_challenge_tests.Services
 {
     internal class RequirementsServiceTests
     {
+        readonly Mock<ICalculatorConfigurationService> mockConfigurationService;
+        readonly Mock<IStringParser> mockStringParser;
+        readonly Settings mockConfigData;
+        
+        public RequirementsServiceTests() 
+        {
+            mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockStringParser = new Mock<IStringParser>();
+            mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0, AllowNegativeDigits = false, MaxNumberSize = 1000 };
+        }
+
         [Test]
         // Test that the calculator functions normally when we don't exceed the maximum number of digits.
         public void CheckLength_UnderLimit()
         {
             var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 2 };
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             Assert.That(requirementsService.CheckTotalDigits(2, mockConfigData), Is.True);
         }
 
@@ -30,10 +42,9 @@ namespace calc_challenge_tests.Services
         public void CheckLength_OverLimit()
         {
             var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 2 };
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             Assert.Throws<Exception>(() => requirementsService.CheckTotalDigits(4, mockConfigData));
         }
 
@@ -42,10 +53,9 @@ namespace calc_challenge_tests.Services
         public void CheckLength_NoLimit()
         {
             var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0 };
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             Assert.That(requirementsService.CheckTotalDigits(2, mockConfigData), Is.True);
         }
 
@@ -54,11 +64,9 @@ namespace calc_challenge_tests.Services
         public void ParseValues_ValidResult()
         {
             var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0 };
-
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             var result = requirementsService.ParseValues("3,5,6\\5", mockConfigData);
 
             Assert.That(result.Length, Is.EqualTo(4));
@@ -71,11 +79,10 @@ namespace calc_challenge_tests.Services
             List<int> numberList = [1, 3, -5, 6, -8];
             string[] numberArray = ["1", "3", "-5", "6", "-8"];
 
-            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0, AllowNegativeDigits = false };
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.ParseStringForNumbers(numberArray)).Returns(numberList);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             Assert.Throws<Exception>(() => requirementsService.ForceNumericValues(numberArray, mockConfigData));
         }
 
@@ -86,11 +93,10 @@ namespace calc_challenge_tests.Services
             List<int> numberList = [1, 3, 5, 6, 8];
             string[] numberArray = ["1", "3", "5", "6", "8"];
 
-            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0, AllowNegativeDigits = false , MaxNumberSize = 1000};
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.ParseStringForNumbers(numberArray)).Returns(numberList);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             var requirements = requirementsService.ForceNumericValues(numberArray, mockConfigData);
             var sum = requirements.Sum();
          
@@ -108,11 +114,10 @@ namespace calc_challenge_tests.Services
             List<int> numberList = [1, 3, 5, 6, 8, 0];
             string[] numberArray = ["1", "3", "5", "6", "8", "a"];
 
-            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0, AllowNegativeDigits = false, MaxNumberSize = 1000 };
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.ParseStringForNumbers(numberArray)).Returns(numberList);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             var requirements = requirementsService.ForceNumericValues(numberArray, mockConfigData);
             var sum = requirements.Sum();
             var test = numberList.Sum();
@@ -130,11 +135,10 @@ namespace calc_challenge_tests.Services
             List<int> numberList = [1, 3, 5, 6, 8];
             string[] numberArray = ["1", "3", "5", "6", "8", "8000"];
 
-            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0, AllowNegativeDigits = false, MaxNumberSize = 1000 };
-            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.ParseStringForNumbers(numberArray)).Returns(numberList);
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             var requirements = requirementsService.ForceNumericValues(numberArray, mockConfigData);
             var sum = requirements.Sum();
 
@@ -149,16 +153,18 @@ namespace calc_challenge_tests.Services
         // Test that if entering a new 1 char delimiter, it is stored correctly.
         public void StoreOptionalDelimiter_Valid()
         {
-            var mockConfigData = new Settings { Delimiters = [",", "\\n"], MaxDigits = 0 };
             char delimiter = '#';
+            string input = "//#";
+            string singleCharacterPattern = @"//(.)";
 
             Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.RegexMatchSingleChar(input, singleCharacterPattern)).Returns(delimiter.ToString());
 
-            var requirementsService = new RequirementsService(mockConfigurationService.Object);
-            var result = requirementsService.StoreOptionalDelimiter("//#", mockConfigData);
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
+            var result = requirementsService.StoreOptionalDelimiter("//#");
 
-            Assert.That(delimiter, Is.EqualTo(result));
+            Assert.That(result, Does.Contain(delimiter.ToString()));
         }
     }
 }

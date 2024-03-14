@@ -14,7 +14,8 @@ namespace calc_challenge.Calculator
         // Using DI for the requirements & configuration services.
         private readonly IRequirementsService _requirementsService = requirementsService;
 
-        // Core loop of the calculator function, take input and route appropriately
+        // Core loop of the calculator function, record input and send to requirements service to be parsed.
+        // End result is sent back to calculator for numeric operations.
         public void CalculatorMain()
         {
             while (true)
@@ -22,6 +23,7 @@ namespace calc_challenge.Calculator
                 Console.WriteLine();
                 Console.WriteLine("Enter a series of numbers to find the sum.");
                 Console.WriteLine($"The numbers may be delimited by a comma or newline character.");
+                Console.WriteLine($"You may also define custom delimiters (See ReadMe)");
                 string? userInput = Console.ReadLine();
 
                 if (userInput != null)
@@ -38,6 +40,7 @@ namespace calc_challenge.Calculator
             }
         }
 
+        // Add the end result of numbers together to fund the sum.
         public int Sum(List<int> numbers)
         {
             int sum = 0;
