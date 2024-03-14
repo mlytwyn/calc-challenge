@@ -2,6 +2,7 @@
   "CalcSettings": {
     "Delimiter": [ ",", "\\n" ],
     "MaxDigits": 0,
-    "AllowNegativeNumbers": false
+    "AllowNegativeNumbers": false,
+    "MaxNumberSize":  1000
   }
 }

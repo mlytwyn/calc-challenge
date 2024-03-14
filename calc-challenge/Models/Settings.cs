@@ -11,5 +11,6 @@ namespace calc_challenge.Models
         public List<string>? Delimiters;
         public int MaxDigits;
         public bool AllowNegativeDigits;
+        public int MaxNumberSize;
     }
 }

@@ -19,7 +19,8 @@ namespace calc_challenge.Services
 
             parsedInputNumbersArray = ParseValues(input, settings);
             CheckTotalDigits(parsedInputNumbersArray.Length, settings);
-            ForceNumericValues(parsedInputNumbersList, parsedInputNumbersArray, settings);
+            parsedInputNumbersList = ForceNumericValues(parsedInputNumbersArray, settings);
+           
             return parsedInputNumbersList;
         }
 
@@ -34,14 +35,15 @@ namespace calc_challenge.Services
 
         // Check the values entered to ensure they are numeric. If not, values are stored as 0
         // If negative numbers are disallowed, record them and throw exception.
-        // List is passed by reference
-        public void ForceNumericValues(List<int> parsedInputNumbers, string[] inputNumbers, Settings settings)
+        public List<int> ForceNumericValues(string[] inputNumbers, Settings settings)
         {
+            List<int> parsedInputNumbers = [];
             foreach (string stringNumber in inputNumbers)
             {
                 if (int.TryParse(stringNumber, out int number))
                 {
-                    parsedInputNumbers.Add(number);
+                    if (number < settings.MaxNumberSize)
+                        parsedInputNumbers.Add(number);
                 }
                 else
                 {
@@ -57,8 +59,9 @@ namespace calc_challenge.Services
                     throw new Exception($"\nYou have entered the following negative numbers which are not allowed " +
                         $"{string.Join(",", negativeNumbers)} ");
                 }
-
             }
+
+            return parsedInputNumbers;
         }
 
         // Create an array of all numbers after splitting from known delimiters. Remove empty strings after completion.
