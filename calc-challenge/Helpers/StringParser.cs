@@ -27,7 +27,12 @@ namespace calc_challenge.Helpers
             return delilmiter.ToString();
         }
 
-        // Given a REGEX pattern, will return matching multiple strings
+        /// <summary>
+        /// Given a REGEX pattern, will return matching multiple strings
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
         public List<string> RegexMatchMultipleString(string input, string pattern)
         {
             MatchCollection matches = Regex.Matches(input, pattern);
@@ -42,7 +47,11 @@ namespace calc_challenge.Helpers
             return delimiters;
         }
 
-        // Given an array of strings, will parse out each value into a number.
+        /// <summary>
+        /// Given an array of strings, will parse out each value into a number.
+        /// </summary>
+        /// <param name="inputNumbers"></param>
+        /// <returns></returns>
         public List<int> ParseStringForNumbers(string[] inputNumbers)
         {
             List<int> parsedInputNumbers = [];

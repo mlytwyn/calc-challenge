@@ -9,10 +9,14 @@ namespace calc_challenge.Services
         readonly ICalculatorConfigurationService _calcConfiguration = calcConfiguration;
         readonly IStringParser _stringParser = stringParser;
 
-        // The service uses config data stored in config.json and user input to perform the following
-        // 1) Determine the delimiters used and parse the numbers into an array.
-        // 2) Enforce the maximum amount of digits allowed if configured.
-        // 3) Return values to be calculated once requirements are met
+        /// <summary>
+        /// The service uses config data stored in config.json and user input to perform the following
+        /// 1) Determine the delimiters used and parse the numbers into an array.
+        /// 2) Enforce the maximum amount of digits allowed if configured.
+        /// 3) Return values to be calculated once requirements are met
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public List<int> RequirementsCheck(string input)
         {
             List<int> parsedInputNumbersList = [];
@@ -27,7 +31,13 @@ namespace calc_challenge.Services
             return parsedInputNumbersList;
         }
 
-        // Check the number of digits entered against the maximum number allowed, if configured in config.json
+        /// <summary>
+        /// Check the number of digits entered against the maximum number allowed, if configured in config.json
+        /// </summary>
+        /// <param name="length"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public bool CheckTotalDigits(int length, Settings settings)
         {
             if (length > settings?.MaxDigits && settings.MaxDigits != 0)
@@ -36,8 +46,14 @@ namespace calc_challenge.Services
             return true;
         }
 
-        // Check the values entered to ensure they are numeric. If not, values are stored as 0
-        // If negative numbers are disallowed, record them and throw exception.
+        /// <summary>
+        /// Check the values entered to ensure they are numeric. If not, values are stored as 0
+        /// If negative numbers are disallowed, record them and throw exception.
+        /// </summary>
+        /// <param name="inputNumbers"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public List<int> ForceNumericValues(string[] inputNumbers, Settings settings)
         {
             List<int> parsedInputNumbers = [];
@@ -60,8 +76,13 @@ namespace calc_challenge.Services
             return parsedInputNumbers;
         }
 
-        // Create an array of all numbers after splitting from known delimiters. Remove empty strings after completion.
-        // Return as a List of integers
+        /// <summary>
+        /// Create an array of all numbers after splitting from known delimiters. Remove empty strings after completion.
+        /// Return as a List of integers
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
         public string[] ParseValues(string input, Settings settings)
         {
             var delimiters = settings?.Delimiters?.Select(del => del);
@@ -70,8 +91,12 @@ namespace calc_challenge.Services
             return inputNumbers.Where(num => num.Length > 0).ToArray();
         }
 
-        // If an optional delimiter is specificed in the input, make note of it here.
-        // Optionally these regex values could be moved to config.json to make them more tweakable without rebuilding
+        /// <summary>
+        /// If an optional delimiter is specificed in the input, make note of it here.
+        /// Optionally these regex values could be moved to config.json to make them more tweakable without rebuilding
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public List<string> StoreOptionalDelimiter(string input)
         {
             var newDelimiters = new List<string>();

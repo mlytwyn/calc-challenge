@@ -17,7 +17,7 @@ namespace calc_challenge_tests.Services
         // Test that we receive the correct settings back when calling them from the Calculator Configuration Service.
         public void GetAllSettings_Test()
         {
-            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0, AllowNegativeDigits = false , MaxNumberSize = 1000};
+            var mockConfigData = new Settings { Delimiters = [","], MaxDigits = 0, AllowNegativeDigits = false, MaxNumberSize = 1000 };
             Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 

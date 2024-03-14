@@ -17,8 +17,8 @@ namespace calc_challenge_tests.Services
         readonly Mock<ICalculatorConfigurationService> mockConfigurationService;
         readonly Mock<IStringParser> mockStringParser;
         readonly Settings mockConfigData;
-        
-        public RequirementsServiceTests() 
+
+        public RequirementsServiceTests()
         {
             mockConfigurationService = new Mock<ICalculatorConfigurationService>();
             mockStringParser = new Mock<IStringParser>();
@@ -99,7 +99,7 @@ namespace calc_challenge_tests.Services
             var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
             var requirements = requirementsService.ForceNumericValues(numberArray, mockConfigData);
             var sum = requirements.Sum();
-         
+
             Assert.Multiple(() =>
             {
                 Assert.That(sum, Is.EqualTo(numberList.Sum()));
@@ -151,7 +151,7 @@ namespace calc_challenge_tests.Services
 
         [Test]
         // Test that if entering a new 1 char delimiter, it is stored correctly.
-        public void StoreOptionalDelimiter_Valid()
+        public void StoreOptionalDelimiterChar_Valid()
         {
             char delimiter = '#';
             string input = "//#";
@@ -165,6 +165,49 @@ namespace calc_challenge_tests.Services
             var result = requirementsService.StoreOptionalDelimiter("//#");
 
             Assert.That(result, Does.Contain(delimiter.ToString()));
+        }
+
+        [Test]
+        // Test that if entering a new multi character delimiter, they is stored correctly.
+        public void StoreOptionalDelimiterString_Valid()
+        {
+            string delimiter = "#*#";
+            string input = "//[#*#]";
+            string multipleCharacterPattern = @"\[(.*?)\]";
+            List<string> delimiters = new List<string> { delimiter };
+
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.RegexMatchMultipleString(input, multipleCharacterPattern)).Returns(delimiters);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
+            var result = requirementsService.StoreOptionalDelimiter("//[#*#]");
+
+            Assert.That(result, Does.Contain(delimiter));
+        }
+
+        [Test]
+        // Test that if entering multiple multi-character delimiter, they is stored correctly.
+        public void StoreOptionalDelimitersMultipleString_Valid()
+        {
+            string delimiterOne = "#*#";
+            string delimiterTwo = "*#*";
+            string input = "//[#*#][*#*]";
+            string multipleCharacterPattern = @"\[(.*?)\]";
+            List<string> delimiters = new List<string> { delimiterOne, delimiterTwo };
+
+            Mock<ICalculatorConfigurationService> mockConfigurationService = new Mock<ICalculatorConfigurationService>();
+            mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
+            mockStringParser.Setup(ds => ds.RegexMatchMultipleString(input, multipleCharacterPattern)).Returns(delimiters);
+
+            var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
+            var result = requirementsService.StoreOptionalDelimiter("//[#*#][*#*]");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Does.Contain(delimiterOne));
+                Assert.That(result, Does.Contain(delimiterTwo));
+            });
         }
     }
 }

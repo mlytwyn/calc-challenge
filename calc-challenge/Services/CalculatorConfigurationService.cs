@@ -7,8 +7,10 @@ namespace calc_challenge.Services
     {
         readonly IConfiguration? _configuration;
 
-        // Read configurable data from config.json file in root directory of project. 
-        // This holds values that can be customized within the application without needing code changes
+        /// <summary>
+        /// Read configurable data from config.json file in root directory of project. 
+        /// This holds values that can be customized within the application without needing code changes
+        /// </summary>
         public CalculatorConfigurationService()
         {
             _configuration = new ConfigurationBuilder()
@@ -17,7 +19,10 @@ namespace calc_challenge.Services
                    .Build();
         }
 
-        // Get all settings from configuration file
+        /// <summary>
+        /// Get all settings from configuration file
+        /// </summary>
+        /// <returns></returns>
         public Settings GetCalculatorSettings()
         {
             return new Settings
@@ -30,7 +35,10 @@ namespace calc_challenge.Services
             };
         }
 
-        // Get delimiters from settings file
+        /// <summary>
+        /// Get delimiters from settings file
+        /// </summary>
+        /// <returns></returns>
         public List<string> GetDelimiters()
         {
             List<string> delimiters = [];
@@ -46,7 +54,10 @@ namespace calc_challenge.Services
             return delimiters;
         }
 
-        // Get max number of digits specified from configuration file
+        /// <summary>
+        /// Get max number of digits specified from configuration file
+        /// </summary>
+        /// <returns></returns>
         public int GetMaxDigits()
         {
             int maxDigits = 0;
@@ -57,6 +68,10 @@ namespace calc_challenge.Services
             return maxDigits; ;
         }
 
+        /// <summary>
+        /// Get bool to allow/disallow negative numbers
+        /// </summary>
+        /// <returns></returns>
         public bool GetAllowNegativeNumbers()
         {
             var negativeNumbersAllowed = false;
@@ -67,6 +82,10 @@ namespace calc_challenge.Services
             return negativeNumbersAllowed; ;
         }
 
+        /// <summary>
+        /// Get maximum number size allowed for user input, e.g. 100, 1000, 10000
+        /// </summary>
+        /// <returns></returns>
         public int GetMaxNumberSize()
         {
             int maxNumberSize = 0;
