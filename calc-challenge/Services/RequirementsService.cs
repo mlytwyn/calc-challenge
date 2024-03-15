@@ -1,5 +1,6 @@
 ﻿using calc_challenge.Helpers;
 using calc_challenge.Models;
+using System;
 using System.Collections.Generic;
 
 namespace calc_challenge.Services
@@ -19,16 +20,15 @@ namespace calc_challenge.Services
         /// <returns></returns>
         public List<int> RequirementsCheck(string input)
         {
-            List<int> parsedInputNumbersList = [];
             string[] parsedInputNumbersArray = [];
             Settings _settings = _calcConfiguration.GetCalculatorSettings();
 
+            // Store any custom delimiters into our list of known delimiters.
             _settings.Delimiters.AddRange(StoreOptionalDelimiter(input));
             parsedInputNumbersArray = ParseValues(input, _settings);
             CheckTotalDigits(parsedInputNumbersArray.Length, _settings);
-            parsedInputNumbersList = ForceNumericValues(parsedInputNumbersArray, _settings);
 
-            return parsedInputNumbersList;
+            return ForceNumericValues(parsedInputNumbersArray, _settings);
         }
 
         /// <summary>
@@ -59,8 +59,14 @@ namespace calc_challenge.Services
             List<int> parsedInputNumbers = [];
             parsedInputNumbers = _stringParser.ParseStringForNumbers(inputNumbers);
 
-            // Remove any numbers that are larger than the configurable maximum size in config.json
-            parsedInputNumbers.RemoveAll(num => num > settings.MaxNumberSize);
+            // Replace any numbers that are larger than the configurable maximum size in config.json with 0
+            parsedInputNumbers = parsedInputNumbers.Select(num =>
+            {
+                if (num > settings.MaxNumberSize)
+                    num = 0;
+
+                return num;
+            }).ToList();
 
             if (!settings.AllowNegativeDigits)
             {
@@ -85,10 +91,10 @@ namespace calc_challenge.Services
         /// <returns></returns>
         public string[] ParseValues(string input, Settings settings)
         {
-            var delimiters = settings?.Delimiters?.Select(del => del);
-            string[] inputNumbers = input.Split(delimiters?.SelectMany(del => del).ToArray());
+            var delimiters = settings.Delimiters.ToArray();
+            string[] splitInput = input.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
 
-            return inputNumbers.Where(num => num.Length > 0).ToArray();
+            return splitInput.Where(num => num.Length > 0).ToArray();
         }
 
         /// <summary>
@@ -109,11 +115,13 @@ namespace calc_challenge.Services
             //// Ex: //[*], //[*#*][#*#], //[******######][z8x]
             string multipleCharacterPattern = @"\[(.*?)\]";
 
-            if (input.Contains('[') && input.Contains(']') && input.StartsWith("/"))
-                newDelimiters.AddRange(_stringParser.RegexMatchMultipleString(input, multipleCharacterPattern));
-
-            if (input.Contains("//") && input.StartsWith('/'))
+            // If the input starts with // and we are not immediatly defining a delimiter in brackets.
+            if (input.StartsWith("//") && input[2].ToString() != "[")
                 newDelimiters.Add(_stringParser.RegexMatchSingleChar(input, singleCharacterPattern));
+
+            // If the input starts with // and it contains an opening and closing bracket
+            if (input.StartsWith("//") && input.Contains('[') && input.Contains(']'))
+                newDelimiters.AddRange(_stringParser.RegexMatchMultipleString(input, multipleCharacterPattern));
 
             return newDelimiters;
         }

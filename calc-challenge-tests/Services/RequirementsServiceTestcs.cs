@@ -67,9 +67,9 @@ namespace calc_challenge_tests.Services
             mockConfigurationService.Setup(ds => ds.GetCalculatorSettings()).Returns(mockConfigData);
 
             var requirementsService = new RequirementsService(mockConfigurationService.Object, mockStringParser.Object);
-            var result = requirementsService.ParseValues("3,5,6\\5", mockConfigData);
+            var result = requirementsService.ParseValues("3,5,6\\n5", mockConfigData);
 
-            Assert.That(result.Length, Is.EqualTo(4));
+            Assert.That(result.Count(), Is.EqualTo(4));
         }
 
         [Test]

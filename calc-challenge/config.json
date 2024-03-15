@@ -3,6 +3,6 @@
     "Delimiter": [ ",", "\\n" ],
     "MaxDigits": 0,
     "AllowNegativeNumbers": false,
-    "MaxNumberSize":  1000
+    "MaxNumberSize": 1000
   }
 }

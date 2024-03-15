@@ -26,17 +26,19 @@ namespace calc_challenge.Calculator
                 Console.WriteLine($"You may also define custom delimiters (See ReadMe)");
                 string? userInput = Console.ReadLine();
 
-                if (userInput != null)
+                if (userInput != null && userInput.Length > 0)
                     try
                     {
-                        Console.WriteLine("Total: " + Sum(_requirementsService.RequirementsCheck(userInput)));
+                        var parsedUserInput = _requirementsService.RequirementsCheck(userInput);
+
+                        Console.WriteLine(Sum(parsedUserInput));
                     }
                     catch(Exception ex)
                     {
                         Console.WriteLine($"{ex.Message}");
                     }
                     
-                else Console.WriteLine("Invalid Value Entered");
+                else Console.WriteLine("No Value Entered");
             }
         }
 
